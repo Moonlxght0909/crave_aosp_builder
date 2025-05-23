@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2024 Antonino Scordino
-# Copyright (C) 2024 Souhrud Reddy
+# Copyright (C) 2024-2025 Antonino Scordino
+# Copyright (C) 2024-2025 Souhrud Reddy
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -90,7 +90,7 @@ jobs:
     - name: Configure the 'crave' environment
       run: |
         echo "DCDEVSPACE status: ${DCDEVSPACE}"
-        if [[ "${DCDEVSPACE}" == "1" ]]; then
+        if [[ $DCDEVSPACE == *1* ]]; then
         echo 'No need to set up crave, we are already running in devspace!'
         else
           mkdir ${HOME}/bin/
@@ -375,11 +375,33 @@ jobs:
     - name: Cleanup
       run: rm -rf * # This cleans github actions workspace
 
-      # Create a project folder
+    - name: Check for a broken .bashrc
+      continue-on-error: true
+      run: |
+        (
+          set +e
+          output=$(source ~/.bashrc 2>&1)
+          status=$?
+          echo "$output"
+          if [[ $status -ne 0 ]]; then
+            echo "You have a broken .bashrc, please contact a Crave.io Administrator"
+            exit 1
+          else
+            echo ".bashrc looks okay, no explicit errors"
+          fi
+
+          # Double check to be sure
+          if echo "$output" | grep -q "cannot execute"; then
+            echo "You have a broken .bashrc, please contact a Crave.io Administrator"
+            exit 1
+          fi
+        )
+
+        # Create a project folder
     - name: Create Project Folders
       run: |
         echo "DCDEVSPACE status: ${DCDEVSPACE}"
-        if [[ "${DCDEVSPACE}" != "1" ]]; then
+        if [[ $DCDEVSPACE != *1* ]]; then
 
           #curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s -- 
 
@@ -401,7 +423,7 @@ jobs:
         echo "Skipping removal"
         fi
 
-        if [[ "${DCDEVSPACE}" == "1" ]]; then
+        if [[ $DCDEVSPACE == *1* ]]; then
           crave clone create --projectID $PROJECTID $PROJECTFOLDER || echo "Crave clone create failed!"
         else
           mkdir $PROJECTFOLDER
@@ -430,7 +452,7 @@ jobs:
       run: |
         echo "DCDEVSPACE status: ${DCDEVSPACE}"
         mkdir -p $PROJECTFOLDER/.repo/manifests
-        if [[ "${DCDEVSPACE}" == "1" ]]; then
+        if [[ $DCDEVSPACE == *1* ]]; then
         echo 'No need to set up crave, we are already running in devspace!'
         else
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
