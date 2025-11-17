@@ -12,7 +12,7 @@
 
 Please avoid importing, or "kanging" this repository as it is frequently updated.
 
-This ensured you can easily update to the latest changes and also boosts my fork stats 😉
+This will ensure that you can easily update to the latest changes and also boosts my fork stats 😉
 
 >[!WARNING]
 > I have received reports that people are getting their Actions access restricted upon using this, especially new accounts.
